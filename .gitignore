@@ -1,0 +1,14 @@
+*.iml
+.idea/
+.gradle/
+.gradle-user-home/
+build/
+local.properties
+.DS_Store
+captures/
+externalNativeBuild/
+
+.tmp-gradle-*.zip*
+.tmp-gradle-extract/
+
+delete_*.tmp

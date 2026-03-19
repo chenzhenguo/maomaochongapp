@@ -62,7 +62,7 @@ class RenamePlannerTest {
   @Test
   fun plan_detectsDuplicateNewNames() {
     val names = listOf("a.mp3", "b.mp3")
-    val mode = RenameMode.RegexReplace(pattern = ".*", replacement = "same")
+    val mode = RenameMode.RegexReplace(pattern = ".+", replacement = "same")
     val result = RenamePlanner.plan(names, mode)
 
     assertEquals("same.mp3", result[0].newName)

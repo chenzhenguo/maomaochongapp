@@ -16,7 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.maomaochongapp.MainViewModel
@@ -102,7 +102,7 @@ fun MainScreen(viewModel: MainViewModel) {
 
     state.lastMessage?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
 
-    Divider()
+    HorizontalDivider()
 
     PreviewPane(
       renamePreviewEmptyHint = "改名预览为空：先选择源目录，再点“改名预览”。",

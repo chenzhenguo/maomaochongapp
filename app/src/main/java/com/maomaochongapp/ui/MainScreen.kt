@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -49,6 +50,11 @@ fun MainScreen(viewModel: MainViewModel) {
     contract = ActivityResultContracts.OpenDocumentTree(),
     onResult = { uri: Uri? -> if (uri != null) viewModel.onExportRootPicked(uri) },
   )
+  val exportDebugLogLauncher = rememberLauncherForActivityResult(
+    contract = ActivityResultContracts.CreateDocument("text/plain"),
+    onResult = { uri: Uri? -> if (uri != null) viewModel.exportDebugLog(uri) },
+  )
+  var showDebugLogs by remember { mutableStateOf(false) }
 
   Column(
     modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -100,9 +106,26 @@ fun MainScreen(viewModel: MainViewModel) {
       Button(onClick = { viewModel.applyExport(move = true) }, enabled = !state.isBusy) { Text("移动导出") }
     }
 
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+      Button(onClick = { showDebugLogs = !showDebugLogs }, enabled = !state.isBusy) {
+        Text(if (showDebugLogs) "隐藏调试日志" else "显示调试日志")
+      }
+      Button(
+        onClick = { exportDebugLogLauncher.launch("maomaochong-debug-${System.currentTimeMillis()}.txt") },
+        enabled = !state.isBusy,
+      ) { Text("导出调试日志") }
+      Button(onClick = viewModel::clearDebugLogs, enabled = !state.isBusy && state.debugLogs.isNotEmpty()) { Text("清空日志") }
+      Text("${state.debugLogs.size} 条", style = MaterialTheme.typography.bodySmall)
+    }
+
     state.lastMessage?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
 
-    HorizontalDivider()
+    if (showDebugLogs) {
+      DebugLogPane(logs = state.debugLogs)
+      HorizontalDivider()
+    } else {
+      HorizontalDivider()
+    }
 
     PreviewPane(
       renamePreviewEmptyHint = "改名预览为空：先选择源目录，再点“改名预览”。",
@@ -348,6 +371,25 @@ private fun ExportEditor(
       Row(verticalAlignment = Alignment.CenterVertically) {
         Checkbox(enabled = enabled, checked = overwrite, onCheckedChange = onOverwriteChange)
         Text("覆盖同名", style = MaterialTheme.typography.bodySmall)
+      }
+    }
+  }
+}
+
+@Composable
+private fun DebugLogPane(logs: List<String>) {
+  Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Text("详细调试日志", style = MaterialTheme.typography.titleSmall)
+    if (logs.isEmpty()) {
+      Text("暂无调试日志。", style = MaterialTheme.typography.bodySmall)
+    } else {
+      LazyColumn(
+        modifier = Modifier.fillMaxWidth().heightIn(max = 220.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+      ) {
+        items(logs.asReversed(), key = { it }) { line ->
+          Text(text = line, style = MaterialTheme.typography.bodySmall)
+        }
       }
     }
   }

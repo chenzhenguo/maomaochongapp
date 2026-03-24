@@ -12,3 +12,5 @@ externalNativeBuild/
 .tmp-gradle-extract/
 
 delete_*.tmp
+.android-sdk/
+.codebuddy/

@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import com.maomaochongapp.ui.MainScreen
+import com.maomaochongapp.ui.MainTabsScreen
 
 class MainActivity : ComponentActivity() {
   private val viewModel: MainViewModel by viewModels()
@@ -16,10 +16,9 @@ class MainActivity : ComponentActivity() {
     setContent {
       MaterialTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-          MainScreen(viewModel = viewModel)
+          MainTabsScreen(viewModel = viewModel)
         }
       }
     }
   }
 }
-

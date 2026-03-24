@@ -12,7 +12,7 @@ android {
     minSdk = 26
     targetSdk = 35
     versionCode = 1
-    versionName = "0.1.0"
+    versionName = "1.0.0"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
@@ -34,6 +34,10 @@ android {
   }
   kotlinOptions {
     jvmTarget = "17"
+    freeCompilerArgs += listOf(
+      "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+      "-opt-in=androidx.compose.foundation.layout.ExperimentalLayoutApi"
+    )
   }
 
   buildFeatures {

@@ -28,6 +28,7 @@ import com.maomaochongapp.MainViewModel
 import com.maomaochongapp.ui.tabs.CopyTab
 import com.maomaochongapp.ui.tabs.DownloadTab
 import com.maomaochongapp.ui.tabs.FilesTab
+import com.maomaochongapp.ui.tabs.PictureBookTab
 import com.maomaochongapp.ui.tabs.SettingsTab
 
 private enum class AppTab(val title: String) {
@@ -35,6 +36,7 @@ private enum class AppTab(val title: String) {
   Files("文件"),
   Copy("复制"),
   Download("下载"),
+  PictureBook("绘本"),
 }
 
 @Composable
@@ -133,6 +135,8 @@ fun MainTabsScreen(viewModel: MainViewModel) {
             onBuildPreview = viewModel::buildDownloadPreview,
             onApplyDownload = viewModel::applyDownload,
           )
+
+          AppTab.PictureBook -> PictureBookTab()
         }
       }
     }

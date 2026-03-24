@@ -1,6 +1,7 @@
 plugins {
   id("com.android.application")
   id("org.jetbrains.kotlin.android")
+  id("org.jetbrains.kotlin.kapt")
 }
 
 android {
@@ -14,6 +15,14 @@ android {
     versionCode = 1
     versionName = "1.0.0"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+    // Enable test options
+    testOptions {
+      unitTests {
+        isIncludeAndroidResources = true
+        isReturnDefaultValues = true
+      }
+    }
   }
 
   buildTypes {
@@ -73,9 +82,38 @@ dependencies {
   debugImplementation("androidx.compose.ui:ui-tooling")
   debugImplementation("androidx.compose.ui:ui-test-manifest")
 
+  // Unit test dependencies
   testImplementation("junit:junit:4.13.2")
+  testImplementation("org.mockito:mockito-core:5.12.0")
+  testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
+  testImplementation("io.mockk:mockk:1.13.10")
+  testImplementation("app.cash.turbine:turbine:1.1.0")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+  testImplementation("androidx.arch.core:core-testing:2.2.0")
+  testImplementation("com.google.truth:truth:1.4.2")
+  testImplementation("org.robolectric:robolectric:4.11.1")
+
+  // Android test dependencies
   androidTestImplementation("androidx.test.ext:junit:1.2.1")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
   androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+  androidTestImplementation("androidx.test:core-ktx:1.6.1")
+  androidTestImplementation("androidx.test:runner:1.6.1")
+  androidTestImplementation("androidx.test:rules:1.6.1")
+  androidTestImplementation("org.robolectric:annotations:4.11.1")
+  androidTestImplementation("androidx.room:room-testing:2.6.1")
+  androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+  androidTestImplementation("io.mockk:mockk-android:1.13.10")
+  androidTestImplementation("com.google.truth:truth:1.4.2")
+  androidTestImplementation("app.cash.turbine:turbine:1.1.0")
+
+  // Room database for picture book persistence
+  implementation("androidx.room:room-runtime:2.6.1")
+  implementation("androidx.room:room-ktx:2.6.1")
+  kapt("androidx.room:room-compiler:2.6.1")
+
+  // Coil for image loading
+  implementation("io.coil-kt:coil-compose:2.6.0")
+  implementation("io.coil-kt:coil-gif:2.6.0")
 }
 

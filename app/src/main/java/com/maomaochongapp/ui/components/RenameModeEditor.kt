@@ -36,17 +36,17 @@ fun RenameModeEditor(
 ) {
   var expanded by remember { mutableStateOf(false) }
   val label = when (mode) {
-    is RenameMode.RecSticker -> "点读�?REC"
+    is RenameMode.RecSticker -> "点读贴 REC"
     is RenameMode.IndexPrefix -> "顺序编号"
     is RenameMode.RegexReplace -> "正则替换"
   }
 
   Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-      Button(onClick = { expanded = true }, enabled = enabled) { Text("改名规则�?label") }
+      Button(onClick = { expanded = true }, enabled = enabled) { Text("改名规则：" + label) }
       DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
         DropdownMenuItem(
-          text = { Text("点读�?REC") },
+          text = { Text("点读贴 REC") },
           onClick = { expanded = false; onModeChange(RenameMode.RecSticker(startCode = 1201)) },
         )
         DropdownMenuItem(
@@ -151,7 +151,7 @@ private fun IndexPrefixEditor(
       checked = mode.keepOriginal,
       onCheckedChange = { onModeChange(mode.copy(keepOriginal = it)) },
     )
-    Text("保留原文件名�?001_原名�?, style = MaterialTheme.typography.bodySmall)
+    Text("保留原文件名（如：001_原名.mp3）", style = MaterialTheme.typography.bodySmall)
   }
   SortEditor(selected = mode.sort, enabled = enabled) { onModeChange(mode.copy(sort = it)) }
 }
@@ -167,7 +167,7 @@ private fun RegexEditor(
     enabled = enabled,
     value = mode.pattern,
     onValueChange = { onModeChange(mode.copy(pattern = it)) },
-    label = { Text("pattern（Kotlin Regex�?) },
+    label = { Text("pattern（Kotlin Regex）") },
     singleLine = true,
   )
   OutlinedTextField(
@@ -188,18 +188,23 @@ private fun SortEditor(
 ) {
   var expanded by remember { mutableStateOf(false) }
   val label = when (selected) {
-    Sort.ByNameAsc -> "按名称升�?
-    Sort.ByNameDesc -> "按名称降�?
+    Sort.ByNameAsc -> "按名称升序"
+    Sort.ByNameDesc -> "按名称降序"
   }
 
   Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-    Text("排序�?label", style = MaterialTheme.typography.bodySmall)
+    Text("排序：" + label, style = MaterialTheme.typography.bodySmall)
     Spacer(modifier = Modifier.height(1.dp))
     Button(onClick = { expanded = true }, enabled = enabled) { Text("切换") }
     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-      DropdownMenuItem(text = { Text("按名称升�?) }, onClick = { expanded = false; onChange(Sort.ByNameAsc) })
-      DropdownMenuItem(text = { Text("按名称降�?) }, onClick = { expanded = false; onChange(Sort.ByNameDesc) })
+      DropdownMenuItem(
+        onClick = { expanded = false; onChange(Sort.ByNameAsc) },
+        text = { Text("按名称升序") }
+      )
+      DropdownMenuItem(
+        onClick = { expanded = false; onChange(Sort.ByNameDesc) },
+        text = { Text("按名称降序") }
+      )
     }
   }
 }
-

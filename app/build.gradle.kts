@@ -25,6 +25,28 @@ android {
     }
   }
 
+  signingConfigs {
+    create("release") {
+      val keystorePath = System.getenv("KEYSTORE_PATH")
+      val keystorePassword = System.getenv("KEYSTORE_PASSWORD")
+      val keyAlias = System.getenv("KEY_ALIAS")
+      val keyPassword = System.getenv("KEY_PASSWORD")
+      if (keystorePath != null && keystorePassword != null && keyAlias != null && keyPassword != null) {
+        storeFile = file(keystorePath)
+        storePassword = keystorePassword
+        this.keyAlias = keyAlias
+        this.keyPassword = keyPassword
+      } else {
+        // Fall back to debug signing when secrets are not available (local dev)
+        val debugConfig = signingConfigs.getByName("debug")
+        storeFile = debugConfig.storeFile
+        storePassword = debugConfig.storePassword
+        this.keyAlias = debugConfig.keyAlias
+        this.keyPassword = debugConfig.keyPassword
+      }
+    }
+  }
+
   buildTypes {
     release {
       isMinifyEnabled = true
@@ -33,7 +55,7 @@ android {
         getDefaultProguardFile("proguard-android-optimize.txt"),
         "proguard-rules.pro",
       )
-      signingConfig = signingConfigs.getByName("debug")
+      signingConfig = signingConfigs.getByName("release")
     }
   }
 

@@ -158,7 +158,7 @@ class ImageUtils {
                 } else {
                     0L
                 }
-            }
+            } ?: 0L
         } catch (e: Exception) {
             0L
         }

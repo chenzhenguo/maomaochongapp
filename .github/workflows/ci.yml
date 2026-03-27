@@ -30,16 +30,16 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android SDK packages
+      - name: Accept Android SDK licenses & install required packages
         run: |
-          yes | sdkmanager --licenses > /dev/null
-          sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+          ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
 
       - name: Point project to CI Android SDK
-        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+        run: echo "sdk.dir=${ANDROID_HOME}" > local.properties
 
       - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4

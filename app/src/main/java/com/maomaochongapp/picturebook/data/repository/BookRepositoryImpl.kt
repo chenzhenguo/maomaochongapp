@@ -1,7 +1,8 @@
 package com.maomaochongapp.picturebook.data.repository
 
 import com.maomaochongapp.picturebook.data.local.BookDao
-import com.maomaochongapp.picturebook.data.mapper.BookMappers
+import com.maomaochongapp.picturebook.data.mapper.toDomain
+import com.maomaochongapp.picturebook.data.mapper.toEntity
 import com.maomaochongapp.picturebook.domain.model.Book
 import com.maomaochongapp.picturebook.domain.model.BookImage
 import com.maomaochongapp.picturebook.domain.repository.BookRepository

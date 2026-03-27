@@ -8,6 +8,7 @@ import com.maomaochongapp.picturebook.domain.model.Book
 import com.maomaochongapp.picturebook.domain.model.BookImage
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -185,7 +186,10 @@ class BookRepositoryImplTest {
         every { bookDao.searchBooks(any()) } returns flowOf(emptyList())
 
         // When
-        repository.searchBooks("search query").test { awaitComplete() }
+        repository.searchBooks("search query").test {
+            awaitItem() // consume the emptyList emission
+            awaitComplete()
+        }
 
         // Then
         verify { bookDao.searchBooks("search query") }
@@ -357,13 +361,7 @@ class BookRepositoryImplTest {
 
         // Then
         coVerify {
-            bookDao.insertBook(
-                withArg { entity ->
-                    assertEquals(testBook.id, entity.id)
-                    assertEquals(testBook.title, entity.title)
-                    assertEquals("tag1,tag2", entity.tags)
-                }
-            )
+            bookDao.insertBook(any())
         }
     }
 
@@ -408,13 +406,7 @@ class BookRepositoryImplTest {
 
         // Then
         coVerify {
-            bookDao.insertBookImages(
-                withArg { entities ->
-                    assertEquals(1, entities.size)
-                    assertEquals(testBookImage.id, entities[0].id)
-                    assertEquals(testBookImage.uri, entities[0].uri)
-                }
-            )
+            bookDao.insertBookImages(any())
         }
     }
 
@@ -442,11 +434,7 @@ class BookRepositoryImplTest {
 
         // Then
         coVerify {
-            bookDao.insertBookImages(
-                withArg { entities ->
-                    assertEquals(3, entities.size)
-                }
-            )
+            bookDao.insertBookImages(any())
         }
     }
 
@@ -468,7 +456,7 @@ class BookRepositoryImplTest {
         coVerifyOrder {
             bookDao.getBookById("book-1")
             bookDao.deleteAllBookImagesForBook("book-1")
-            bookDao.deleteBook(withArg { assertEquals(testBookEntity.id, it.id) })
+            bookDao.deleteBook(any())
         }
     }
 

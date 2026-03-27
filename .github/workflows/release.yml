@@ -31,22 +31,33 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android SDK packages
+      - name: Accept Android SDK licenses & install required packages
         run: |
-          yes | sdkmanager --licenses > /dev/null
-          sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+          ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
 
       - name: Point project to CI Android SDK
-        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+        run: echo "sdk.dir=${ANDROID_HOME}" > local.properties
 
       - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      - name: Decode and set up keystore
+        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > ${{ github.workspace }}/release.keystore
+          echo "KEYSTORE_PATH=${{ github.workspace }}/release.keystore" >> $GITHUB_ENV
+          echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> $GITHUB_ENV
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
 
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest --stacktrace
@@ -91,4 +102,3 @@ jobs:
             app/build/outputs/logs
           if-no-files-found: ignore
           retention-days: 7
-

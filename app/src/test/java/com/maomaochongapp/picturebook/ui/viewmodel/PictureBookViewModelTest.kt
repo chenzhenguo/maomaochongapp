@@ -235,9 +235,9 @@ class PictureBookViewModelTest {
         viewModel.searchBooks("book")
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
+        // Then - all 3 books match: "Test Book 1", "Test Book 2", "Different Book"
         val state = viewModel.state.value
-        assertEquals(2, state.filteredBooks.size)
+        assertEquals(3, state.filteredBooks.size)
     }
 
     @Test
@@ -688,6 +688,9 @@ class PictureBookViewModelTest {
     fun `addImagesToBook adds images successfully`() = runTest {
         // Given
         val uri = mockk<Uri>()
+        every { uri.scheme } returns "content"
+        every { uri.authority } returns "com.android.externalstorage.documents"
+        every { uri.lastPathSegment } returns "test.jpg"
         every { uri.toString() } returns "content://test/image"
 
         val imageInfo = ImageInfo(
@@ -697,6 +700,7 @@ class PictureBookViewModelTest {
             width = 800,
             height = 600,
         )
+        every { imageUtils.isValidImage(any(), any()) } returns true
         every { imageUtils.getImageInfo(any(), any()) } returns imageInfo
         coEvery { bookRepository.getBookById("book-1") } returns testBook1
         coEvery { bookRepository.upsertBookImages(any()) } returns Unit
@@ -718,6 +722,9 @@ class PictureBookViewModelTest {
         // Given
         val bookWithoutCover = testBook1.copy(coverImageUri = null)
         val uri = mockk<Uri>()
+        every { uri.scheme } returns "content"
+        every { uri.authority } returns "com.android.externalstorage.documents"
+        every { uri.lastPathSegment } returns "test.jpg"
         every { uri.toString() } returns "content://test/image"
 
         val imageInfo = ImageInfo(
@@ -727,6 +734,7 @@ class PictureBookViewModelTest {
             width = 800,
             height = 600,
         )
+        every { imageUtils.isValidImage(any(), any()) } returns true
         every { imageUtils.getImageInfo(any(), any()) } returns imageInfo
         coEvery { bookRepository.getBookById("book-1") } returns bookWithoutCover
         coEvery { bookRepository.upsertBookImages(any()) } returns Unit
@@ -744,6 +752,9 @@ class PictureBookViewModelTest {
     fun `addImagesToBook with null book sets error`() = runTest {
         // Given
         val uri = mockk<Uri>()
+        every { uri.scheme } returns "content"
+        every { uri.authority } returns "com.android.externalstorage.documents"
+        every { uri.lastPathSegment } returns "image.jpg"
         coEvery { bookRepository.getBookById("non-existent") } returns null
 
         // When
@@ -760,6 +771,10 @@ class PictureBookViewModelTest {
     fun `addImagesToBook with exception sets error`() = runTest {
         // Given
         val uri = mockk<Uri>()
+        every { uri.scheme } returns "content"
+        every { uri.authority } returns "com.android.externalstorage.documents"
+        every { uri.lastPathSegment } returns "image.jpg"
+        every { imageUtils.isValidImage(any(), any()) } returns true
         every { imageUtils.getImageInfo(any(), any()) } throws RuntimeException("Image error")
         coEvery { bookRepository.getBookById("book-1") } returns testBook1
 

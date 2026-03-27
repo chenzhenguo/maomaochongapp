@@ -1,28 +1,28 @@
 package com.maomaochongapp.core.image
 
-import coil.ImageLoader
+import android.content.pm.ApplicationInfo
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
-import coil.request.ImageRequest
 import coil.util.DebugLogger
 import android.content.Context
 import android.util.Log
-import androidx.core.content.ContextCompat
+import coil.annotation.ExperimentalCoilApi
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
+import coil.ImageLoader as CoilImageLoader
 
 /**
  * Image loader configuration for picture book management
  */
-object ImageLoader {
+object AppImageLoader {
     private const val TAG = "ImageLoader"
     private var initialized = false
+    private var imageLoader: CoilImageLoader? = null
 
     fun initialize(context: Context) {
         if (initialized) return
 
-        val imageLoader = ImageLoader.Builder(context)
-            .availableMemoryPercentage(0.25)
+        imageLoader = CoilImageLoader.Builder(context)
             .crossfade(true)
             .respectCacheHeaders(false)
             .memoryCache {
@@ -44,20 +44,21 @@ object ImageLoader {
                 }
             }
             .apply {
-                if (BuildConfig.DEBUG) {
+                if ((context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
                     logger(DebugLogger(Log.INFO))
                 }
             }
             .build()
 
-        coil.ImageLoader.setGlobal(imageLoader)
         initialized = true
         Log.d(TAG, "ImageLoader initialized")
     }
 
+    @OptIn(ExperimentalCoilApi::class)
     fun clearCache(context: Context) {
-        coil.ImageLoader.get(context).clearMemoryCache()
-        coil.ImageLoader.get(context).clearDiskCache()
-        Log.d(TAG, "Image cache cleared")
+        val loader = imageLoader ?: return
+        loader.memoryCache?.clear()
+        loader.diskCache?.clear()
+        Log.d(TAG, "Image cache cleared for ${context.packageName}")
     }
 }

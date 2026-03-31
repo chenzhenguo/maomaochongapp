@@ -104,7 +104,7 @@ class ImageUtilsTest {
         // Then
         assertNull(result.fileName)
         assertNull(result.mimeType)
-        assertEquals(0L, result.fileSize)
+        assertNull(result.fileSize)
         assertEquals(0, result.width)
         assertEquals(0, result.height)
     }

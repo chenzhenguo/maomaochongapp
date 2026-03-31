@@ -50,6 +50,12 @@ fun DownloadTab(
       Button(onClick = onApplyDownload, enabled = enabled) { Text("执行下载") }
     }
     state.plannedDownloadNextAfter?.let { Text("本次完成后序号将更新为：$it", style = MaterialTheme.typography.bodySmall) }
+    if (state.downloadProgress.isNotEmpty()) {
+      val currentUrl = state.downloadProgress.keys.firstOrNull()
+      if (currentUrl != null) {
+        Text("正在下载: ${currentUrl.take(50)}${if (currentUrl.length > 50) "..." else ""}", style = MaterialTheme.typography.bodySmall)
+      }
+    }
     HorizontalDivider()
     DownloadPreviewPane(items = state.downloadPreview)
     state.lastMessage?.let { Text(it, color = MaterialTheme.colorScheme.primary) }

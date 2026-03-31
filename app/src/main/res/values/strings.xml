@@ -1,4 +1,65 @@
 <resources>
   <string name="app_name">毛毛虫资源管家</string>
+
+  <!-- Tab titles -->
+  <string name="tab_settings">设置</string>
+  <string name="tab_files">文件</string>
+  <string name="tab_copy">复制</string>
+  <string name="tab_download">下载</string>
+  <string name="tab_picture_book">绘本</string>
+
+  <!-- Picture Book strings -->
+  <string name="picture_book_management">Picture Book Management</string>
+  <string name="create_new_picture_book">Create New Picture Book</string>
+  <string name="edit_picture_book">Edit Picture Book</string>
+  <string name="book_title">Title</string>
+  <string name="book_title_required">Title cannot be empty</string>
+  <string name="book_description">Description</string>
+  <string name="book_tags">Tags (comma-separated)</string>
+  <string name="create_book">Create Book</string>
+  <string name="save_changes">Save Changes</string>
+  <string name="delete_book">Delete Book</string>
+  <string name="search_books">Search books</string>
+  <string name="filter_by_tags">Filter by tags:</string>
+  <string name="clear_filters">Clear filters</string>
+  <string name="no_picture_books_found">No picture books found</string>
+  <string name="create_first_picture_book">Create your first picture book!</string>
+  <string name="pages_count">Pages: %d</string>
+  <string name="created_date">Created: %s</string>
+
+  <!-- Settings tab strings -->
+  <string name="select_source_folder">选择源文件夹</string>
+  <string name="select_target_directory">选择目标目录</string>
+  <string name="target_subdir">目标子目录</string>
+  <string name="overwrite_existing">覆盖现有文件</string>
+  <string name="sequence_next">序列下一个</string>
+  <string name="sequence_width">序列宽度</string>
+  <string name="sequence_prefix">序列前缀</string>
+  <string name="avoid_duplicate_sequence">避免重复序列</string>
+  <string name="scan_next_index">扫描并跳转到下一个索引</string>
+  <string name="export_debug_log">导出调试日志</string>
+  <string name="clear_debug_logs">清除调试日志</string>
+
+  <!-- Files tab strings -->
+  <string name="select_all">全选</string>
+  <string name="clear_selection">清除选择</string>
+  <string name="build_preview">生成预览</string>
+  <string name="apply_rename">应用重命名</string>
+  <string name="open_file">打开文件</string>
+
+  <!-- Copy tab strings -->
+  <string name="override_start_index">覆盖起始索引</string>
+  <string name="build_copy_preview">生成复制预览</string>
+  <string name="apply_copy">应用复制</string>
+
+  <!-- Download tab strings -->
+  <string name="download_urls">下载URLs (每行一个)</string>
+  <string name="build_download_preview">生成下载预览</string>
+  <string name="apply_download">应用下载</string>
+
+  <!-- Error messages -->
+  <string name="error_dismiss">Dismiss error</string>
+  <string name="message_dismiss">Dismiss message</string>
+  <string name="back_to_list">Back to list</string>
 </resources>
 

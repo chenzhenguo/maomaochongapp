@@ -12,7 +12,7 @@ import java.io.IOException
 data class ImageInfo(
     val fileName: String?,
     val mimeType: String?,
-    val fileSize: Long,
+    val fileSize: Long?,
     val width: Int,
     val height: Int,
 )
@@ -61,7 +61,7 @@ class ImageUtils {
         return ImageInfo(
             fileName = fileName,
             mimeType = mimeType,
-            fileSize = fileSize,
+            fileSize = if (fileSize > 0) fileSize else null,
             width = width,
             height = height,
         )

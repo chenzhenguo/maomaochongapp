@@ -10,6 +10,7 @@ import com.maomaochongapp.picturebook.domain.model.BookImage
 import com.maomaochongapp.picturebook.domain.repository.BookRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import java.time.Instant
@@ -56,17 +57,23 @@ class PictureBookViewModel(
             supervisorScope {
                 _state.update { it.copy(isLoading = true, error = null) }
                 try {
-                    bookRepository.getAllBooks().collect { books ->
-                        val allTags = books.flatMap { it.tags }.toSet()
-                        _state.update { current ->
-                            current.copy(
-                                books = books,
-                                allTags = allTags,
-                                isLoading = false,
-                                filteredBooks = applyFilters(books, current.searchQuery, current.selectedTags),
-                            )
+                    bookRepository.getAllBooks()
+                        .stateIn(
+                            scope = viewModelScope,
+                            started = SharingStarted.WhileSubscribed(5000),
+                            initialValue = emptyList()
+                        )
+                        .collect { books ->
+                            val allTags = books.flatMap { it.tags }.toSet()
+                            _state.update { current ->
+                                current.copy(
+                                    books = books,
+                                    allTags = allTags,
+                                    isLoading = false,
+                                    filteredBooks = applyFilters(books, current.searchQuery, current.selectedTags),
+                                )
+                            }
                         }
-                    }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -222,14 +229,20 @@ class PictureBookViewModel(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
             try {
-                bookRepository.getBookImages(bookId).collect { images ->
-                    _state.update { current ->
-                        current.copy(
-                            isLoading = false,
-                            bookImages = images,
-                        )
+                bookRepository.getBookImages(bookId)
+                    .stateIn(
+                        scope = viewModelScope,
+                        started = SharingStarted.WhileSubscribed(5000),
+                        initialValue = emptyList()
+                    )
+                    .collect { images ->
+                        _state.update { current ->
+                            current.copy(
+                                isLoading = false,
+                                bookImages = images,
+                            )
+                        }
                     }
-                }
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }
@@ -281,7 +294,7 @@ class PictureBookViewModel(
                         displayName = imageInfo.fileName ?: "image_${index + 1}",
                         uri = uri.toString(),
                         mimeType = imageInfo.mimeType ?: "image/jpeg",
-                        fileSize = imageInfo.fileSize,
+                        fileSize = imageInfo.fileSize ?: 0L,
                         width = imageInfo.width,
                         height = imageInfo.height,
                         pageNumber = currentImages.size + index,
@@ -367,6 +380,13 @@ class PictureBookViewModel(
      */
     fun clearMessage() {
         _state.update { it.copy(lastMessage = null) }
+    }
+
+    /**
+     * Clear current book selection
+     */
+    fun clearCurrentBook() {
+        _state.update { it.copy(currentBook = null, bookImages = emptyList()) }
     }
 
     private fun applyFilters(books: List<Book>, query: String, tags: Set<String>): List<Book> {

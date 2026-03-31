@@ -28,6 +28,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -841,6 +842,49 @@ class PictureBookViewModelTest {
         val state = viewModel.state.value
         assertFalse(state.isLoading)
         assertEquals("Delete failed", state.error)
+    }
+
+    // endregion
+
+    // region clearCurrentBook Tests
+
+    @Test
+    fun `clearCurrentBook sets currentBook and bookImages to null`() = runTest {
+        // Given - set up a current book
+        coEvery { bookRepository.getBookById("book-1") } returns testBook1
+        viewModel.loadBook("book-1")
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val images = listOf(
+            BookImage(
+                id = "img-1",
+                bookId = "book-1",
+                originalFileName = "image1.jpg",
+                displayName = "image1.jpg",
+                uri = "content://img/1",
+                mimeType = "image/jpeg",
+                fileSize = 1024,
+                width = 800,
+                height = 600,
+                pageNumber = 0,
+                createdAt = testInstant,
+                updatedAt = testInstant,
+            )
+        )
+        every { bookRepository.getBookImages("book-1") } returns flowOf(images)
+        viewModel.loadBookImages("book-1")
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Verify initial state
+        assertNotNull(viewModel.state.value.currentBook)
+        assertFalse(viewModel.state.value.bookImages.isEmpty())
+
+        // When
+        viewModel.clearCurrentBook()
+
+        // Then
+        assertNull(viewModel.state.value.currentBook)
+        assertTrue(viewModel.state.value.bookImages.isEmpty())
     }
 
     // endregion

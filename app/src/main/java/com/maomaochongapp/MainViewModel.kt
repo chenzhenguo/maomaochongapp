@@ -17,6 +17,7 @@ import com.maomaochongapp.renamer.RenamePlanner
 import com.maomaochongapp.renamer.RenamePreviewItem
 import com.maomaochongapp.sequence.SequenceAllocator
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -55,6 +56,7 @@ data class MainUiState(
   val debugLogs: List<String> = emptyList(),
   val lastMessage: String? = null,
   val isBusy: Boolean = false,
+  val downloadProgress: Map<String, Int> = emptyMap(), // URL -> progress percentage
 )
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {
@@ -515,12 +517,33 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     return prefix.trim() + num + extWithDot
   }
 
+  // Cache for used indices to avoid repeated filesystem scans
+  private var usedIndicesCache: MutableMap<String, Pair<Set<Int>, Long>> = mutableMapOf()
+  private val cacheTimeoutMs = 5000L // 5 seconds
+
   private fun listUsedIndices(destDir: DocumentFile?, seqPrefix: String): Set<Int> {
     if (destDir == null) return emptySet()
-    return destDir.listFiles()
+
+    val cacheKey = "${destDir.uri}|$seqPrefix"
+    val now = System.currentTimeMillis()
+
+    // Check cache first
+    usedIndicesCache[cacheKey]?.let { (cachedIndices, timestamp) ->
+      if (now - timestamp < cacheTimeoutMs) {
+        return cachedIndices
+      }
+    }
+
+    // Perform filesystem scan
+    val usedIndices = destDir.listFiles()
       .filter { it.isFile }
       .mapNotNull { SequenceAllocator.parseIndexWithPrefix(it.name, seqPrefix) }
       .toSet()
+
+    // Update cache
+    usedIndicesCache[cacheKey] = usedIndices to now
+
+    return usedIndices
   }
 
   fun buildCopyPreview() {
@@ -819,20 +842,53 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             continue
           }
 
+          // Update progress state to show current file being downloaded
+          _state.update { currentState ->
+            currentState.copy(downloadProgress = mapOf(item.url to 50))
+          }
+
           val error = runCatching {
-            val conn = (URL(item.url).openConnection() as HttpURLConnection).apply {
-              connectTimeout = 15_000
-              readTimeout = 30_000
-              instanceFollowRedirects = true
-              requestMethod = "GET"
-            }
-            conn.inputStream.use { input ->
-              cr.openOutputStream(created.uri, "w").use { output ->
-                requireNotNull(output) { "无法打开输出流" }
-                input.copyTo(output)
+            // Download with retry logic
+            var lastError: Exception? = null
+            var attempt = 0
+            val maxRetries = 3
+
+            while (attempt <= maxRetries) {
+              try {
+                val conn = (URL(item.url).openConnection() as HttpURLConnection).apply {
+                  connectTimeout = 15_000
+                  readTimeout = 30_000
+                  instanceFollowRedirects = true
+                  requestMethod = "GET"
+                }
+                conn.inputStream.use { input ->
+                  cr.openOutputStream(created.uri, "w").use { output ->
+                    requireNotNull(output) { "无法打开输出流" }
+                    input.copyTo(output)
+                  }
+                }
+                // Success - break out of retry loop
+                lastError = null
+                break
+              } catch (e: Exception) {
+                lastError = e
+                attempt++
+                if (attempt <= maxRetries) {
+                  // Exponential backoff: 1s, 2s, 4s
+                  delay(1000L * (1L shl (attempt - 1)))
+                }
               }
             }
+
+            if (lastError != null) {
+              throw lastError
+            }
           }.exceptionOrNull()
+
+          // Clear progress after completion
+          _state.update { currentState ->
+            currentState.copy(downloadProgress = emptyMap())
+          }
 
           if (error == null) {
             ok++

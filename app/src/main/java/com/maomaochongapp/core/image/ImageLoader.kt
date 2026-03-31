@@ -45,7 +45,9 @@ object AppImageLoader {
             }
             .apply {
                 if ((context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-                    logger(DebugLogger(Log.INFO))
+                    logger { message, throwable ->
+                        Log.log(Log.INFO, TAG, throwable, message)
+                    }
                 }
             }
             .build()

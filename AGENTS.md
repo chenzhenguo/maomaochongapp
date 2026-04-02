@@ -35,6 +35,19 @@
 - Go fix failing CI tests without being told how
 
 ---
+## 5-Agent Team Structure
+
+For comprehensive development, debugging, and release workflows, use the 5-agent team structure defined in `.agents/team-config.md`:
+
+1. **Development Agent** - Feature implementation and UI development
+2. **Debugging Agent** - Bug identification and resolution
+3. **Testing Agent** - Comprehensive test coverage (80%+ target)
+4. **Security Agent** - Security review and vulnerability prevention
+5. **Release Agent** - Release preparation and automation
+
+Each agent has specific file ownership and handoff protocols documented in the team configuration. Use the communication templates in `.agents/handoffs/` for structured collaboration.
+
+---
 ## Task Management
 1. **Plan First**: Write plan to `tasks/todo.md` with checkable items
 2. **Verify Plan**: Check in before starting implementation
@@ -47,4 +60,3 @@
 ## Core Principles
 - **Simplicity First**: Make every change as simple as possible. Impact minimal code.
 - **No Laziness**: Find root causes. No temporary fixes. Senior developer standards
-
